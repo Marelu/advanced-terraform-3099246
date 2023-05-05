@@ -24,7 +24,7 @@ To resolve this issue:
 	Commit changes using this command: git commit -m "some message"
 
 
-### Instructors
+### Instructor
 
 David Swersky 
                             
