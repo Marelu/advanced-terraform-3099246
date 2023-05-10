@@ -8,6 +8,7 @@ provider "google" {
 ### NETWORK
 data "google_compute_network" "default" {
   name                    = "default"
+  project = "advancedterraform-385714" #replace this with your project-id
 }
 
 ## SUBNET
@@ -20,6 +21,7 @@ resource "google_compute_subnetwork" "subnet-1" {
 }
 
 resource "google_compute_firewall" "default" {
+  project = "advancedterraform-385714" #replace this with your project-id
   name    = "test-firewall"
   network = data.google_compute_network.default.self_link
 
