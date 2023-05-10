@@ -1,3 +1,4 @@
+/*
 ### PROVIDER
 provider "google" {
   project = "advancedterraform-385714" #replace this with your project-id
@@ -125,3 +126,4 @@ resource "google_compute_instance" "mysqldb" {
     subnetwork = google_compute_subnetwork.subnet-1.self_link
   }  
 }
+*/
