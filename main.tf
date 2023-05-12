@@ -35,6 +35,16 @@ resource "google_compute_firewall" "default" {
   source_tags = var.compute-source-tags
 }
 
+## BUCKETS
+resource "google_storage_bucket" "environment_buckets" {
+  for_each = toset(var.environment_list)
+  name = "${lower(each.key)}_${var.project-id}"
+  location = "US"
+  versioning {
+    enabled = true
+  }
+}
+
 ### COMPUTE
 ## NGINX PROXY
 resource "google_compute_instance" "nginx_instance" {
@@ -60,7 +70,7 @@ resource "google_compute_instance" "nginx_instance" {
   }
 }
 
-
+## WEBSERVERS
 resource "google_compute_instance" "web-instances" {
   count = 3
   name         = "web${count.index}"
@@ -68,8 +78,7 @@ resource "google_compute_instance" "web-instances" {
   labels = {
     environment = var.environment_map[var.target_environment]
   }
-  
-  boot_disk {
+     boot_disk {
     initialize_params {
       image = "debian-cloud/debian-11"
     }
@@ -82,54 +91,13 @@ resource "google_compute_instance" "web-instances" {
   }
 }
 
-/*
-## WEB1
-resource "google_compute_instance" "web1" {
-  name         = "web1"
-  machine_type = var.environment_machine_type[var.target_environment]
-  labels = {
-    environment = var.environment_map[var.target_environment]
-  }
-  
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-11"
-    }
-  }
+## WEBSERVERS-MAP
+resource "google_compute_instance" "web-map-instances" {
+  for_each = var.environment_instance_settings
+  name = "${lower(each.key)}-web"
+  machine_type = each.value.machine_type
+  labels = each.value.labels
 
-  network_interface {
-    # A default network is created for all GCP projects
-    network = data.google_compute_network.default.self_link
-    subnetwork = google_compute_subnetwork.subnet-1.self_link
-  }
-}
-## WEB2
-resource "google_compute_instance" "web2" {
-  name         = "web2"
-  machine_type = var.environment_machine_type[var.target_environment]
-  labels = {
-    environment = var.environment_map[var.target_environment]
-  }
-  
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-11"
-    }
-  }
-
-  network_interface {
-    network = data.google_compute_network.default.self_link
-    subnetwork = google_compute_subnetwork.subnet-1.self_link
-  }
-}
-## WEB3
-resource "google_compute_instance" "web3" {
-  name         = "web3"
-  machine_type = var.environment_machine_type[var.target_environment]
-  labels = {
-    environment = var.environment_map[var.target_environment]
-  }
-  
   boot_disk {
     initialize_params {
       image = "debian-cloud/debian-11"
@@ -141,7 +109,7 @@ resource "google_compute_instance" "web3" {
     subnetwork = google_compute_subnetwork.subnet-1.self_link
   }  
 }
-*/
+
 ## DB
 resource "google_compute_instance" "mysqldb" {
   name         = "mysqldb"
